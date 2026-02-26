@@ -1,37 +1,69 @@
-# FPGA-Based Event-Driven Data Acquisition System
+FPGA-Based Event-Driven Data Acquisition System
+1. Project Overview
+This project presents a hardware-level implementation of a high-resolution data acquisition (DAQ) unit designed for the Intel Cyclone IV FPGA architecture. The system is engineered to detect, capture, and measure the duration of asynchronous pulse bursts from external sensors with clock-cycle precision. Unlike traditional continuous sampling methods, this event-driven architecture optimizes data throughput and storage by recording only relevant signal transitions.
 
-## 1. Overview
-This repository contains a high-precision hardware implementation of an event-driven data acquisition (DAQ) unit. The system is designed to identify, capture, and measure the duration of asynchronous pulse bursts with clock-cycle accuracy, providing a resource-efficient alternative to continuous data streaming.
+2. Technical Specifications
+The design has been synthesized and validated for the Intel Cyclone IV E EP4CE6E22C8 device with the following performance metrics:
 
-## 2. Technical Specifications
-The design is optimized for the Intel Cyclone IV E architecture (EP4CE6E22C8) and meets the following performance metrics:
+Reference Clock: 50.0 MHz.
 
-* **Reference Clock:** 50 MHz (20 ns sampling resolution).
-* **Resource Utilization:** 166 Logic Elements (~3% of the EP4CE6 device), demonstrating high architectural efficiency.
-* **Timing Closure:** Successfully met all timing requirements with a Setup Slack of +13.660 ns.
-* **I/O Configuration:** 32-bit debug output bus for real-time monitoring.
+Sampling Resolution: 20 ns per clock cycle.
 
-## 3. System Architecture
-The project utilizes a modular RTL (Register Transfer Level) approach, ensuring scalability and ease of integration into larger SoC designs:
+Logic Resource Utilization: 166 Logic Elements (approximately 3% of available LEs).
 
-* **Signal Synchronization (Frontend):** Handles asynchronous input signals to prevent metastability.
-* **Timebase Generator (Timer):** A continuous 32-bit counter providing a global timestamp.
-* **Event Processor (FSM):** A finite state machine that implements the detection logic and manages burst-to-data conversion.
-* **Buffered Storage (FIFO):** Integrated memory blocks (M9K) for asynchronous data buffering between the processor and external interfaces.
+Registers: 156 total registers.
 
-## 4. Verification Methodology
-In the absence of a commercial RTL simulator, a custom **Cycle-Accurate Python Emulator** was developed to validate the system logic. 
+Timing Closure: Successfully met with a Setup Slack of +13.660 ns.
 
-The emulator accurately reproduces the hardware's internal states and timing behavior, allowing for:
-* Verification of the burst detection thresholds.
-* Validation of FIFO write-request timing.
-* Stress testing with various pulse patterns before physical synthesis.
+Memory Blocks: Utilization of M9K blocks for internal FIFO buffering.
 
-## 5. Development Environment
-* **HDL:** Verilog-2001.
-* **Synthesis & Implementation:** Intel Quartus Prime Lite Edition.
-* **Timing Analysis:** Quartus TimeQuest Timing Analyzer.
-* **Scripts:** Python 3.x for verification and data visualization.
+3. System Architecture
+The repository contains a modular RTL (Register Transfer Level) design, ensuring high portability and integration readiness:
 
-## 6. License
-This project is released under the MIT License.
+Signal Frontend: Implements synchronization logic to mitigate metastability and generates edge-detection strobes for asynchronous inputs.
+
+Event Processor: A finite state machine (FSM) responsible for identifying burst start/end points and calculating elapsed time.
+
+System Timer: A continuous 32-bit counter providing a global timebase for event synchronization.
+
+Data FIFO: An asynchronous-ready buffer used to store 64-bit event data packets (timestamp and duration) prior to external transmission.
+
+4. Verification and Validation
+Functional correctness was verified using a cycle-accurate Python-based emulator. This verification environment simulates hardware behavior at the register level, allowing for:
+
+Threshold Validation: Testing burst detection logic against varying pulse widths.
+
+FIFO Management: Confirming the integrity of write-request signals and data alignment.
+
+Signal Integrity: Assessing system response to high-frequency event bursts.
+
+5. Deployment Instructions
+5.1 Hardware Synthesis
+Load the project via quartus/event_chip.qpf in Intel Quartus Prime.
+
+Verify that all Verilog source files in the rtl/ directory are included in the project hierarchy.
+
+Execute Full Compilation to generate the FPGA bitstream.
+
+Review the TimeQuest Timing Analyzer reports to ensure all constraints are met.
+
+5.2 Functional Simulation
+Ensure a Python 3.x environment is available.
+
+Execute the emulation script located at sim/emulator.py.
+
+Analyze the output data to verify adherence to expected timing characteristics.
+
+6. Repository Structure
+rtl/: Contains core Verilog HDL modules.
+
+quartus/: Project files, pin assignments, and SDC constraints.
+
+ip/: Intel Quartus IP configuration files for FIFO and RAM components.
+
+sim/: Verification scripts and software-based hardware models.
+
+docs/: Technical reports and architectural visualizations.
+
+7. License
+This project is distributed under the MIT License.
